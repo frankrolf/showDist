@@ -20,5 +20,9 @@
 	<real>1409847156.227813</real>
 	<key>version</key>
 	<string>1.0</string>
+	<key>repository</key>
+	<string>frankrolf/showDist</string>
+	<key>extensionPath</key>
+	<string>showDist.roboFontExt</string>
 </dict>
 </plist>

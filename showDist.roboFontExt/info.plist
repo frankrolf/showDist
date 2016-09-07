@@ -5,7 +5,7 @@
 	<key>addToMenu</key>
 	<array/>
 	<key>developer</key>
-	<string>Frank Griesshammer</string>
+	<string>Frank Grießhammer</string>
 	<key>developerURL</key>
 	<string>www.frgr.de</string>
 	<key>html</key>
@@ -17,9 +17,9 @@
 	<key>name</key>
 	<string>showDist</string>
 	<key>timeStamp</key>
-	<real>1443129309.55</real>
+	<real>1473264000.00</real>
 	<key>version</key>
-	<string>1.1</string>
+	<string>1.2</string>
 	<key>repository</key>
 	<string>frankrolf/showDist</string>
 	<key>extensionPath</key>

@@ -17,6 +17,7 @@ Released under MIT license.
 from vanilla import *
 from defconAppKit.windows.baseWindow import BaseWindowController
 from mojo.events import addObserver, removeObserver
+from mojo.UI import CurrentGlyphWindow
 import math
 
 
@@ -165,34 +166,25 @@ class ShowDistTextBox(TextBox):
             self.setText(CurrentGlyph())
 
     def _breakCycles(self):
-        super(ShowDistTextBox, self)._breakCycles()
-
-        removeObserver(self, "mouseUp")
-        removeObserver(self, "keyUp")
+        if hasattr(self, "keyUpCallback"):
+            removeObserver(self, "keyUp")
+        if hasattr(self, "mouseUpCallback"):
+            removeObserver(self, "mouseUp")
 
 
 class ShowDist(BaseWindowController):
-    """
-    Attach a vanilla text box to a window.
-    """
 
     def __init__(self):
         addObserver(self, "glyphWindowDidOpen", "glyphWindowDidOpen")
 
     def glyphWindowDidOpen(self, info):
-        window = info["window"]
+        window = CurrentGlyphWindow()
         vanillaView = ShowDistTextBox(
-            (20, 22, 120, 22), "", alignment="left", sizeStyle="mini")
-        superview = window.editGlyphView.enclosingScrollView().superview()
-        view = vanillaView.getNSTextField()
-        frame = superview.frame()
-        vanillaView._setFrame(frame)
-        superview.addSubview_(view)
-
-    def windowCloseCallback(self, sender):
-        super(ShowDistTextBox, self).windowCloseCallback(sender)
-        # super(ShowDist, self).windowCloseCallback(sender)
-        removeObserver(self, "glyphWindowDidOpen")
-
+            (20, 22, 120, 22),
+            "",
+            alignment="left",
+            sizeStyle="mini"
+        )
+        window.addGlyphEditorSubview(vanillaView)
 
 ShowDist()

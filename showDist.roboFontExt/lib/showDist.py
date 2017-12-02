@@ -10,6 +10,7 @@ If the points are not on a staight line, also show diagonal distance and angle.
 2014-06 add keyUp event for select all
 2015-09 add BCP length
 2017-12 make selections in multiple windows possible
+        make BCP length interactive
 
 Released under MIT license.
 
@@ -22,23 +23,51 @@ from mojo.UI import CurrentGlyphWindow
 import math
 
 
-def return_prev_and_next_BCP(point):
+def get_BCP_base(bcp):
     '''
-    For a given point, return previous and next BCPs
+    For a given BCP, return the point it is attached to.
+    '''
+    contour = bcp.getParent()
+    if len(contour) == 1:
+        return None, None
+
+    c_points = contour.points
+    p_index = c_points.index(bcp)
+    prev_index = p_index - 1
+    next_index = p_index + 1
+    # the previous point must always exist:
+    prev_point = c_points[prev_index]
+
+    # the next point doesn’t necessarily have to:
+    next_point = None
+    if len(contour) >= p_index:
+        next_point = c_points[next_index]
+
+    if next_point and next_point.type != 'offCurve':
+        point = next_point
+    else:
+        point = prev_point
+
+    return point
+
+
+def get_prev_and_next_BCP(point):
+    '''
+    For a given point, return previous and next BCPs.
     '''
     contour = point.getParent()
     if len(contour) == 1:
         return None, None
 
     c_points = contour.points
-    point_index = c_points.index(point)
+    p_index = c_points.index(point)
 
-    if point_index == 0:
+    if p_index == 0:
         prev_BCP, next_BCP = c_points[-1], c_points[1]
-    elif point_index == len(contour.points) - 1:
-        prev_BCP, next_BCP = c_points[point_index - 1], c_points[0]
+    elif p_index == len(contour.points) - 1:
+        prev_BCP, next_BCP = c_points[p_index - 1], c_points[0]
     else:
-        prev_BCP, next_BCP = c_points[point_index - 1], c_points[point_index + 1]
+        prev_BCP, next_BCP = c_points[p_index - 1], c_points[p_index + 1]
 
     if prev_BCP.type != 'offCurve':
         prev_BCP = None
@@ -69,7 +98,7 @@ class SelectedPoints(object):
             return ((0, 0), (0, 0))
 
     def nice_angle_string(self):
-        angleResultString = u'%.2f' % self.angle
+        angleResultString = u'{:.2f}'.format(self.angle)
         if angleResultString.endswith('.00'):
             angleResultString = angleResultString[0:-3]
         return angleResultString
@@ -79,7 +108,9 @@ class ShowDistTextBox(TextBox):
 
     def __init__(self, parent_view, *args, **kwargs):
         super(ShowDistTextBox, self).__init__(*args, **kwargs)
-        self.notifications = ["mouseUp", "selectAll", "viewDidChangeGlyph"]
+        self.notifications = [
+            "mouseUp", "mouseDragged", "selectAll", "viewDidChangeGlyph"
+        ]
         for notification_name in self.notifications:
             addObserver(
                 self, "update_info_callback", notification_name)
@@ -88,13 +119,36 @@ class ShowDistTextBox(TextBox):
     def set_text(self, selection):
         if len(selection) == 1:
             point = selection[0]
+            textData = []
 
             if point.type == 'offCurve':
-                return
+                # only a BCP is selected
+                bc_point = point
+                base_point = get_BCP_base(bc_point)
+                pPointPair = SelectedPoints([bc_point, base_point])
+                if pPointPair.angle > 45:
+                    if bc_point.x - base_point.x < 0:
+                        bcpIndicator = u'⟝'
+                    else:
+                        bcpIndicator = u'⟞'
+                else:
+                    if bc_point.y - base_point.y < 0:
+                        bcpIndicator = u'⟘'
+                    else:
+                        bcpIndicator = u'⟙'
+
+                if pPointPair.angle in [0, 90]:
+                    textString = u"{} {:.0f}".format(
+                        bcpIndicator, pPointPair.dist)
+                else:
+                    textString = u"{} {:.0f} ∡ {}°".format(
+                        bcpIndicator, pPointPair.dist,
+                        pPointPair.nice_angle)
+                textData.append(textString)
 
             else:
-                prev_BCP, next_BCP = return_prev_and_next_BCP(point)
-                textData = []
+                # a single point with one or two BCPs is selected
+                prev_BCP, next_BCP = get_prev_and_next_BCP(point)
 
                 if prev_BCP:
                     pPointPair = SelectedPoints([prev_BCP, point])
@@ -111,10 +165,10 @@ class ShowDistTextBox(TextBox):
                             bcpIndicator = u'⟙'
 
                     if pPointPair.angle in [0, 90]:
-                        textString = u"%s %.0f" % (
+                        textString = u"{} {:.0f}".format(
                             bcpIndicator, pPointPair.dist)
                     else:
-                        textString = u"%s %.0f ∡ %s°" % (
+                        textString = u"{} {:.0f} ∡ {}°".format(
                             bcpIndicator, pPointPair.dist,
                             pPointPair.nice_angle)
                     textData.append(textString)
@@ -138,10 +192,10 @@ class ShowDistTextBox(TextBox):
                             pos = 0
 
                     if nPointPair.angle in [0, 90]:
-                        textString = u"%s %.0f" % (
+                        textString = u"{} {:.0f}".format(
                             bcpIndicator, nPointPair.dist)
                     else:
-                        textString = u"%s %.0f ∡ %s°" % (
+                        textString = u"{} {:.0f} ∡ {}°".format(
                             bcpIndicator, nPointPair.dist,
                             nPointPair.nice_angle)
                     if pos == 0:
@@ -149,7 +203,7 @@ class ShowDistTextBox(TextBox):
                     else:
                         textData.append(textString)
 
-                text = '\n'.join(textData)
+            text = '\n'.join(textData)
 
         else:
 
@@ -158,10 +212,10 @@ class ShowDistTextBox(TextBox):
             if [sp.angle, sp.dist_x, sp.dist_y] == [0, 0, 0]:
                 text = ''
             elif sp.angle in [0, 90] and sp.dist in [sp.dist_x, sp.dist_y]:
-                text = u"↦ %.0f ↥ %.0f\n∡ %s°" % (
+                text = u"↦ {:.0f} ↥ {:.0f}\n∡ {}°".format(
                     sp.dist_x, sp.dist_y, sp.nice_angle)
             else:
-                text = u"↦ %.0f ↥ %.0f \n∡ %s° ⤢ %.2f" % (
+                text = u"↦ {:.0f} ↥ {:.0f} \n∡ {}° ⤢ {:.2f}".format(
                     sp.dist_x, sp.dist_y, sp.nice_angle, sp.dist)
 
         self.set(text)

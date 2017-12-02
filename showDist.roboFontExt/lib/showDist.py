@@ -39,14 +39,14 @@ def get_BCP_base(bcp):
     prev_point = c_points[prev_index]
 
     # the next point doesn’t necessarily have to:
-    next_point = None
-    if len(contour) >= p_index:
+    if p_index == len(c_points) - 1:
+        next_point = c_points[0]
+    else:
         next_point = c_points[next_index]
 
-    if next_point and next_point.type != 'offCurve':
+    point = prev_point
+    if prev_point.type == 'offCurve':
         point = next_point
-    else:
-        point = prev_point
 
     return point
 

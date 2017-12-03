@@ -1,6 +1,6 @@
 # showDist
 
-<img src="showDist.png" width="694" height="656" alt="showDist Screenshot"/>
+<img src="img/showDist.png" alt="showDist screenshot"/>
 
 **Robofont extension to show quick information about point selection.**  
 This extension lives in a tiny space in the top left of the glyph window.  
@@ -13,6 +13,8 @@ Note: If a selection contists of more than two points, the extension will show t
 - Version 1.2: add static BCP-length information 
 - Version 1.3: make selections in multiple windows possible
 - Version 1.4: add interactive BCP-length information  
+
+<img src="img/showDist_drag.gif" alt="point dragging"/>
 
 ----
 

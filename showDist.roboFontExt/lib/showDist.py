@@ -11,6 +11,7 @@ If the points are not on a staight line, also show diagonal distance and angle.
 2015-09 add BCP length
 2017-12 make selections in multiple windows possible
         make BCP length interactive
+        minor code simplifications
 
 Released under MIT license.
 
@@ -18,7 +19,7 @@ Released under MIT license.
 
 from vanilla import *
 from defconAppKit.windows.baseWindow import BaseWindowController
-from mojo.events import addObserver, removeObserver
+from mojo.events import addObserver
 from mojo.UI import CurrentGlyphWindow
 import math
 
@@ -35,7 +36,7 @@ def get_BCP_base(bcp):
     p_index = c_points.index(bcp)
     prev_index = p_index - 1
     next_index = p_index + 1
-    # the previous point must always exist:
+    # the previous point for a given BCP must always exist:
     prev_point = c_points[prev_index]
 
     # the next point doesn’t necessarily have to:
@@ -79,29 +80,28 @@ def get_prev_and_next_BCP(point):
 
 
 class SelectedPoints(object):
-    def __init__(self, coordList):
-        self.coordList = coordList
+    def __init__(self, coord_list):
+        self.coord_list = coord_list
         self.sel_box = self.sel_box()
         self.dist_x = self.sel_box[1][0] - self.sel_box[0][0]
         self.dist_y = self.sel_box[1][1] - self.sel_box[0][1]
-        self.dist = math.sqrt(self.dist_x**2 + self.dist_y**2)
+        self.dist = math.hypot(self.dist_x, self.dist_y)
         self.angle = math.degrees(math.atan2(self.dist_x, self.dist_y))
         self.nice_angle = self.nice_angle_string()
 
     def sel_box(self):
-        if self.coordList:
-            xList = [point.x for point in self.coordList]
-            yList = [point.y for point in self.coordList]
+        if self.coord_list:
+            xList = [point.x for point in self.coord_list]
+            yList = [point.y for point in self.coord_list]
 
             return ((min(xList), min(yList)), (max(xList), max(yList)))
-        else:
-            return ((0, 0), (0, 0))
+        return ((0, 0), (0, 0))
 
     def nice_angle_string(self):
-        angleResultString = u'{:.2f}'.format(self.angle)
-        if angleResultString.endswith('.00'):
-            angleResultString = angleResultString[0:-3]
-        return angleResultString
+        nice_angle = u'{:.2f}'.format(self.angle)
+        if nice_angle.endswith('.00'):
+            return u'{:.0f}'.format(self.angle)
+        return nice_angle
 
 
 class ShowDistTextBox(TextBox):
@@ -109,104 +109,80 @@ class ShowDistTextBox(TextBox):
     def __init__(self, parent_view, *args, **kwargs):
         super(ShowDistTextBox, self).__init__(*args, **kwargs)
         self.notifications = [
-            "mouseUp", "mouseDragged", "selectAll", "viewDidChangeGlyph"
+            "mouseUp", "mouseDragged",
+            "keyUp", "selectAll",
+            "viewDidChangeGlyph"
         ]
         for notification_name in self.notifications:
             addObserver(
                 self, "update_info_callback", notification_name)
         self.parent_view = parent_view
 
+    def get_BCP_indicator(self, point_pair):
+        '''Draw a tack in the direction of the BCP'''
+        point_a, point_b = point_pair.coord_list
+        if point_pair.angle > 45:
+            if point_a.x - point_b.x < 0:
+                bcp_indicator = u'⊢'
+            else:
+                bcp_indicator = u'⊣'
+        else:
+            if point_a.y - point_b.y < 0:
+                bcp_indicator = u'⊥'
+            else:
+                bcp_indicator = u'⊤'
+        return bcp_indicator
+
+    def make_BCP_info(self, point_pair):
+        '''String to display in the info box'''
+        bcp_indicator = self.get_BCP_indicator(point_pair)
+        point_a, point_b = point_pair.coord_list
+        if point_pair.angle in [0, 90]:
+            info = u"{} {:.0f}".format(
+                bcp_indicator, point_pair.dist)
+        else:
+            info = u"{} {:.0f} ∡ {}°".format(
+                bcp_indicator, point_pair.dist,
+                point_pair.nice_angle)
+        return info
+
     def set_text(self, selection):
         if len(selection) == 1:
             point = selection[0]
-            textData = []
+            info_list = []
 
             if point.type == 'offCurve':
                 # only a BCP is selected
                 bc_point = point
                 base_point = get_BCP_base(bc_point)
-                pPointPair = SelectedPoints([bc_point, base_point])
-                if pPointPair.angle > 45:
-                    if bc_point.x - base_point.x < 0:
-                        bcpIndicator = u'⟝'
-                    else:
-                        bcpIndicator = u'⟞'
-                else:
-                    if bc_point.y - base_point.y < 0:
-                        bcpIndicator = u'⟘'
-                    else:
-                        bcpIndicator = u'⟙'
-
-                if pPointPair.angle in [0, 90]:
-                    textString = u"{} {:.0f}".format(
-                        bcpIndicator, pPointPair.dist)
-                else:
-                    textString = u"{} {:.0f} ∡ {}°".format(
-                        bcpIndicator, pPointPair.dist,
-                        pPointPair.nice_angle)
-                textData.append(textString)
+                point_pair = SelectedPoints([bc_point, base_point])
+                info = self.make_BCP_info(point_pair)
+                info_list.append(info)
 
             else:
                 # a single point with one or two BCPs is selected
                 prev_BCP, next_BCP = get_prev_and_next_BCP(point)
 
                 if prev_BCP:
-                    pPointPair = SelectedPoints([prev_BCP, point])
-
-                    if pPointPair.angle > 45:
-                        if prev_BCP.x - point.x < 0:
-                            bcpIndicator = u'⟝'
-                        else:
-                            bcpIndicator = u'⟞'
-                    else:
-                        if prev_BCP.y - point.y < 0:
-                            bcpIndicator = u'⟘'
-                        else:
-                            bcpIndicator = u'⟙'
-
-                    if pPointPair.angle in [0, 90]:
-                        textString = u"{} {:.0f}".format(
-                            bcpIndicator, pPointPair.dist)
-                    else:
-                        textString = u"{} {:.0f} ∡ {}°".format(
-                            bcpIndicator, pPointPair.dist,
-                            pPointPair.nice_angle)
-                    textData.append(textString)
+                    prev_point_pair = SelectedPoints([prev_BCP, point])
+                    info = self.make_BCP_info(prev_point_pair)
+                    info_list.append(info)
 
                 if next_BCP:
-                    nPointPair = SelectedPoints([next_BCP, point])
+                    next_point_pair = SelectedPoints([next_BCP, point])
+                    info = self.make_BCP_info(next_point_pair)
+                    info_list.append(info)
 
-                    if nPointPair.angle > 45:
-                        if next_BCP.x - point.x < 0:
-                            bcpIndicator = u'⟝'
-                            pos = 0
-                        else:
-                            bcpIndicator = u'⟞'
-                            pos = -1
-                    else:
-                        if next_BCP.y - point.y < 0:
-                            bcpIndicator = u'⟘'
-                            pos = -1
-                        else:
-                            bcpIndicator = u'⟙'
-                            pos = 0
+            # make sure the BCP list is always displayed in same order:
+            if info_list[0][0] == u'⊣':
+                info_list.reverse()
+            if info_list[0][0] == u'⊥':
+                info_list.reverse()
 
-                    if nPointPair.angle in [0, 90]:
-                        textString = u"{} {:.0f}".format(
-                            bcpIndicator, nPointPair.dist)
-                    else:
-                        textString = u"{} {:.0f} ∡ {}°".format(
-                            bcpIndicator, nPointPair.dist,
-                            nPointPair.nice_angle)
-                    if pos == 0:
-                        textData.insert(pos, textString)
-                    else:
-                        textData.append(textString)
-
-            text = '\n'.join(textData)
+            text = '\n'.join(info_list)
 
         else:
-
+            # multiple points are selected
             sp = SelectedPoints(selection)
 
             if [sp.angle, sp.dist_x, sp.dist_y] == [0, 0, 0]:
@@ -236,9 +212,9 @@ class ShowDistTextBox(TextBox):
     def _check_view(self, view):
         return view == self.parent_view
 
-    def _breakCycles(self):
-        for notification_name in self.notifications:
-            removeObserver(self, notification_name)
+    # def _breakCycles(self):
+    #     for notification_name in self.notifications:
+    #         removeObserver(self, notification_name)
 
 
 class ShowDist(BaseWindowController):

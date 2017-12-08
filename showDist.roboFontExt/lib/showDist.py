@@ -174,10 +174,11 @@ class ShowDistTextBox(TextBox):
                     info_list.append(info)
 
             # make sure the BCP list is always displayed in same order:
-            if info_list[0][0] == u'⊣':
-                info_list.reverse()
-            if info_list[0][0] == u'⊥':
-                info_list.reverse()
+            if info_list:
+                if info_list[0][0] == u'⊣':
+                    info_list.reverse()
+                if info_list[0][0] == u'⊥':
+                    info_list.reverse()
 
             text = '\n'.join(info_list)
 

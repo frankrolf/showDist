@@ -12,6 +12,7 @@ If the points are not on a staight line, also show diagonal distance and angle.
 2017-12 make selections in multiple windows possible
         make BCP length interactive
         minor code simplifications
+2018-01 make RF3 compatible
 
 Released under MIT license.
 
@@ -46,7 +47,7 @@ def get_BCP_base(bcp):
         next_point = c_points[next_index]
 
     point = prev_point
-    if prev_point.type == 'offCurve':
+    if prev_point.type.lower() == 'offcurve':
         point = next_point
 
     return point
@@ -57,7 +58,7 @@ def get_prev_and_next_BCP(point):
     For a given point, return previous and next BCPs.
     '''
     contour = point.getParent()
-    if len(contour) == 1:
+    if contour and len(contour) == 1:
         return None, None
 
     c_points = contour.points
@@ -70,10 +71,10 @@ def get_prev_and_next_BCP(point):
     else:
         prev_BCP, next_BCP = c_points[p_index - 1], c_points[p_index + 1]
 
-    if prev_BCP.type != 'offCurve':
+    if prev_BCP.type.lower() != 'offcurve':
         prev_BCP = None
 
-    if next_BCP.type != 'offCurve':
+    if next_BCP.type.lower() != 'offcurve':
         next_BCP = None
 
     return prev_BCP, next_BCP
@@ -151,7 +152,7 @@ class ShowDistTextBox(TextBox):
             point = selection[0]
             info_list = []
 
-            if point.type == 'offCurve':
+            if point.type.lower() == 'offcurve':
                 # only a BCP is selected
                 bc_point = point
                 base_point = get_BCP_base(bc_point)

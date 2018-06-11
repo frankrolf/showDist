@@ -13,6 +13,7 @@ If the points are not on a staight line, also show diagonal distance and angle.
         make BCP length interactive
         minor code simplifications
 2018-01 make RF3 compatible
+2018-06 update for RF 3.1+ (use new selection API)
 
 Released under MIT license.
 
@@ -206,7 +207,10 @@ class ShowDistTextBox(TextBox):
 
     def update_info(self, glyph):
         if glyph is not None:
-            selection = glyph.selection
+            try: # RF 3.1+
+                selection = glyph.selectedPoints
+            except: # RF 1
+                selection = glyph.selection
         else:
             selection = []
         self.set_text(selection)

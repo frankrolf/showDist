@@ -21,7 +21,7 @@ Released under MIT license.
 from vanilla import *
 from defconAppKit.windows.baseWindow import BaseWindowController
 from mojo.events import addObserver
-from mojo.UI import CurrentGlyphWindow
+from mojo.UI import CurrentGlyphWindow, getGlyphViewDisplaySettings
 import math
 
 
@@ -226,10 +226,14 @@ class ShowDist(BaseWindowController):
 
     def show_dist_textbox(self, info):
         window = CurrentGlyphWindow()
+        if getGlyphViewDisplaySettings()['Rulers']:
+            offset = (20, 22, 120, 22),
+        else:
+            offset = (10, 12, 120, 22),
         view = window.getGlyphView()
         vanillaView = ShowDistTextBox(
             view,
-            (20, 22, 120, 22),
+            *offset,
             "",
             alignment="left",
             sizeStyle="mini"

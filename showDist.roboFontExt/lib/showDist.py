@@ -87,7 +87,7 @@ class SelectedPoints(object):
         self.dist_x = self.sel_box[1][0] - self.sel_box[0][0]
         self.dist_y = self.sel_box[1][1] - self.sel_box[0][1]
         self.dist = math.hypot(self.dist_x, self.dist_y)
-        self.angle = math.degrees(math.atan2(self.dist_x, self.dist_y))
+        self.angle = math.degrees(math.atan2(self.dist_y, self.dist_x))
         self.nice_angle = self.nice_angle_string()
 
     def sel_box(self):

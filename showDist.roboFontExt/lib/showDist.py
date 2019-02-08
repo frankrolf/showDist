@@ -13,6 +13,7 @@ If the points are not on a staight line, also show diagonal distance and angle.
         make BCP length interactive
         minor code simplifications
 2018-01 make RF3 compatible
+2018-12 fix angle (90° is vertical), support rulers
 
 Released under MIT license.
 
@@ -241,4 +242,5 @@ class ShowDist(BaseWindowController):
         window.addGlyphEditorSubview(vanillaView)
 
 
-ShowDist()
+if __name__ == '__main__':
+    ShowDist()

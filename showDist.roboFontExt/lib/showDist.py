@@ -14,6 +14,7 @@ If the points are not on a staight line, also show diagonal distance and angle.
         minor code simplifications
 2018-01 make RF3 compatible
 2018-12 fix angle (90° is vertical), support rulers
+2019-05 propoerly remove observers
 
 Released under MIT license.
 
@@ -21,7 +22,7 @@ Released under MIT license.
 
 from vanilla import *
 from defconAppKit.windows.baseWindow import BaseWindowController
-from mojo.events import addObserver
+from mojo.events import addObserver, removeObserver
 from mojo.UI import CurrentGlyphWindow, getGlyphViewDisplaySettings
 import math
 
@@ -111,13 +112,16 @@ class ShowDistTextBox(TextBox):
     def __init__(self, parent_view, *args, **kwargs):
         super(ShowDistTextBox, self).__init__(*args, **kwargs)
         self.notifications = [
-            "mouseUp", "mouseDragged",
+            "mouseUp",
+            "mouseDragged",
             "keyUp", "selectAll",
             "viewDidChangeGlyph"
         ]
         for notification_name in self.notifications:
             addObserver(
                 self, "update_info_callback", notification_name)
+
+        addObserver(self, "glyphWindowWillClose", "glyphWindowWillClose")
         self.parent_view = parent_view
 
     def get_BCP_indicator(self, point_pair):
@@ -215,15 +219,20 @@ class ShowDistTextBox(TextBox):
     def _check_view(self, view):
         return view == self.parent_view
 
-    # def _breakCycles(self):
-    #     for notification_name in self.notifications:
-    #         removeObserver(self, notification_name)
+    def glyphWindowWillClose(self, info):
+        removeObserver(self, "mouseUp")
+        removeObserver(self, "keyUp")
+        removeObserver(self, "selectAll")
+        removeObserver(self, "mouseDragged")
+        removeObserver(self, "viewDidChangeGlyph")
+        removeObserver(self, "glyphWindowWillClose")
 
 
 class ShowDist(BaseWindowController):
 
     def __init__(self):
         addObserver(self, "show_dist_textbox", "glyphWindowDidOpen")
+        addObserver(self, "glyphWindowWillClose", "glyphWindowWillClose")
 
     def show_dist_textbox(self, info):
         window = CurrentGlyphWindow()
@@ -240,6 +249,10 @@ class ShowDist(BaseWindowController):
             sizeStyle="mini"
         )
         window.addGlyphEditorSubview(vanillaView)
+
+    def glyphWindowWillClose(self, info):
+        removeObserver(self, "show_dist_textbox")
+        removeObserver(self, "glyphWindowWillClose")
 
 
 if __name__ == '__main__':

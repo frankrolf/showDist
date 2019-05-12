@@ -8,11 +8,12 @@ When two or more points are selected, the exension will show information about t
 
 Selection of a single point will return distances and angles of attached BCPs, selection of a single BCP will return distance and angle from that BCP to its base point. This information is interactively updated as points are dragged.  
 
-Note: If a selection contists of more than two points, the extension will show the values for the bounding box of the current selection.  
+Note: If a selection consists of more than two points, the extension will show the values for the bounding box of the current selection.  
 
 - Version 1.2: add static BCP-length information 
 - Version 1.3: make selections in multiple windows possible
 - Version 1.4: add interactive BCP-length information  
+- Version 1.7: fix angle direction, support rulers, properly remove observers
 
 <img src="img/showDist_drag.gif" alt="point dragging"/>
 

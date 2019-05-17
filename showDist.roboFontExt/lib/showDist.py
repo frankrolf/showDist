@@ -14,7 +14,7 @@ If the points are not on a staight line, also show diagonal distance and angle.
         minor code simplifications
 2018-01 make RF3 compatible
 2018-12 fix angle (90° is vertical), support rulers
-2019-05 propoerly remove observers
+2019-05 properly remove observers
 
 Released under MIT license.
 
@@ -23,7 +23,7 @@ Released under MIT license.
 from vanilla import TextBox
 from defconAppKit.windows.baseWindow import BaseWindowController
 from mojo.events import addObserver, removeObserver
-from mojo.UI import CurrentGlyphWindow, getGlyphViewDisplaySettings
+from mojo.UI import getGlyphViewDisplaySettings
 import math
 
 
@@ -66,6 +66,7 @@ def get_prev_and_next_BCP(point):
     c_points = contour.points
     p_index = c_points.index(point)
 
+    # XXX this can eventually be rewritten with modulo
     if p_index == 0:
         prev_BCP, next_BCP = c_points[-1], c_points[1]
     elif p_index == len(contour.points) - 1:
@@ -225,7 +226,6 @@ class ShowDistTextBox(TextBox):
         removeObserver(self, 'selectAll')
         removeObserver(self, 'mouseDragged')
         removeObserver(self, 'viewDidChangeGlyph')
-        removeObserver(self, 'glyphWindowWillClose')
 
 
 class ShowDist(BaseWindowController):
@@ -235,7 +235,7 @@ class ShowDist(BaseWindowController):
         addObserver(self, 'kill_show_dist', 'glyphWindowWillClose')
 
     def show_dist_textbox(self, info):
-        window = CurrentGlyphWindow()
+        window = info['window']
         if getGlyphViewDisplaySettings()['Rulers']:
             offset = (20, 22, 120, 22),
         else:

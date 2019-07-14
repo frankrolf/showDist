@@ -128,7 +128,7 @@ class ShowDistTextBox(TextBox):
     def get_BCP_indicator(self, point_pair):
         '''Draw a tack in the direction of the BCP'''
         point_a, point_b = point_pair.coord_list
-        if point_pair.angle > 45:
+        if point_pair.angle < 45:
             if point_a.x - point_b.x < 0:
                 bcp_indicator = u'⊢'
             else:

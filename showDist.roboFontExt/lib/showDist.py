@@ -3,7 +3,6 @@
 '''
 Show horizontal and vertical distance between selected points.
 If the points are not on a staight line, also show diagonal distance and angle.
-
 2013-04 roughly adapt code from DJR
 2013-06 larger rewrite
 2014-02 add angle
@@ -15,9 +14,7 @@ If the points are not on a staight line, also show diagonal distance and angle.
 2018-01 make RF3 compatible
 2018-12 fix angle (90° is vertical), support rulers
 2019-05 properly remove observers
-
 Released under MIT license.
-
 '''
 
 from vanilla import TextBox
@@ -221,18 +218,15 @@ class ShowDistTextBox(TextBox):
         return view == self.parent_view
 
     def kill_observers(self, info):
-        removeObserver(self, 'mouseUp')
-        removeObserver(self, 'keyUp')
-        removeObserver(self, 'selectAll')
-        removeObserver(self, 'mouseDragged')
-        removeObserver(self, 'viewDidChangeGlyph')
+        for notification_name in self.notifications:
+            removeObserver(self, notification_name)
+        removeObserver(self, 'glyphWindowWillClose')
 
 
-class ShowDist(BaseWindowController):
+class ShowDist(object):
 
     def __init__(self):
         addObserver(self, 'show_dist_textbox', 'glyphWindowDidOpen')
-        addObserver(self, 'kill_show_dist', 'glyphWindowWillClose')
 
     def show_dist_textbox(self, info):
         window = info['window']
@@ -249,9 +243,6 @@ class ShowDist(BaseWindowController):
             sizeStyle='mini'
         )
         window.addGlyphEditorSubview(vanillaView)
-
-    def kill_show_dist(self, info):
-        removeObserver(self, 'glyphWindowWillClose')
 
 
 if __name__ == '__main__':

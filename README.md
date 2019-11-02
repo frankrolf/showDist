@@ -14,12 +14,13 @@ Note: If a selection consists of more than two points, the extension will show t
 - Version 1.3: make selections in multiple windows possible
 - Version 1.4: add interactive BCP-length information  
 - Version 1.7: fix angle direction, support rulers, properly remove observers
+- Version 1.8: observer updates
 
 <img src="img/showDist_drag.gif" alt="point dragging"/>
 
 ----
 
-This extension (especially the text-in-window part) is heavily based on David Jonathan Ross’ [ShowMouseCoordinates](https://github.com/FontBureau/fbOpenTools/tree/master/ShowMouseCoordinates) – I hope he approves.
+This extension (especially the text-in-window part) is heavily based on David Jonathan Ross’ [ShowMouseCoordinates](https://github.com/FontBureau/fbOpenTools/tree/master/ShowMouseCoordinates).
 
 Installing this extension will activate it; it won’t show in any menus.  
 To remove the extension just delete `showDist.roboFontExt` from the extensions folder.  

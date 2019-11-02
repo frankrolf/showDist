@@ -14,11 +14,12 @@ If the points are not on a staight line, also show diagonal distance and angle.
 2018-01 make RF3 compatible
 2018-12 fix angle (90° is vertical), support rulers
 2019-05 properly remove observers
+2019-11 avoid deprecated methods
+
 Released under MIT license.
 '''
 
 from vanilla import TextBox
-from defconAppKit.windows.baseWindow import BaseWindowController
 from mojo.events import addObserver, removeObserver
 from mojo.UI import getGlyphViewDisplaySettings
 import math
@@ -28,7 +29,7 @@ def get_BCP_base(bcp):
     '''
     For a given BCP, return the point it is attached to.
     '''
-    contour = bcp.getParent()
+    contour = bcp.contour
     if len(contour) == 1:
         return None, None
 
@@ -56,7 +57,7 @@ def get_prev_and_next_BCP(point):
     '''
     For a given point, return previous and next BCPs.
     '''
-    contour = point.getParent()
+    contour = point.contour
     if contour and len(contour) == 1:
         return None, None
 
@@ -209,7 +210,7 @@ class ShowDistTextBox(TextBox):
 
     def update_info(self, glyph):
         if glyph is not None:
-            selection = glyph.selection
+            selection = glyph.selectedPoints
         else:
             selection = []
         self.set_text(selection)

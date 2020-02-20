@@ -23,6 +23,7 @@ from vanilla import TextBox
 from mojo.events import addObserver, removeObserver
 from mojo.UI import getGlyphViewDisplaySettings
 import math
+import AppKit
 
 
 def get_BCP_base(bcp):
@@ -243,6 +244,11 @@ class ShowDist(object):
             alignment='left',
             sizeStyle='mini'
         )
+        nsfont = AppKit.NSFont.monospacedDigitSystemFontOfSize_weight_(9, 0.0)
+        text_color = AppKit.NSColor.colorWithCalibratedRed_green_blue_alpha_(
+            0.0, 0.5, 1.0, 1)
+        vanillaView.getNSTextField().setFont_(nsfont)
+        vanillaView.getNSTextField().setTextColor_(text_color)
         window.addGlyphEditorSubview(vanillaView)
 
 

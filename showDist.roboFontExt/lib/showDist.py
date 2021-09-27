@@ -231,7 +231,7 @@ class ShowDist(object):
 
     def show_dist_textbox(self, info):
         window = info['window']
-        if getGlyphViewDisplaySettings()['Rulers']:
+        if getGlyphViewDisplaySettings().get('Rulers'):
             offset = (20, 22, 120, 22),
         else:
             offset = (10, 12, 120, 22),

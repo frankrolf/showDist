@@ -1,20 +1,6 @@
-# coding=utf-8
-
 '''
 Show horizontal and vertical distance between selected points.
 If the points are not on a staight line, also show diagonal distance and angle.
-2013-04 roughly adapt code from DJR
-2013-06 larger rewrite
-2014-02 add angle
-2014-06 add keyUp event for select all
-2015-09 add BCP length
-2017-12 make selections in multiple windows possible
-        make BCP length interactive
-        minor code simplifications
-2018-01 make RF3 compatible
-2018-12 fix angle (90° is vertical), support rulers
-2019-05 properly remove observers
-2019-11 avoid deprecated methods
 
 Released under MIT license.
 '''
@@ -61,16 +47,10 @@ def get_prev_and_next_BCP(point):
     if contour and len(contour) == 1:
         return None, None
 
-    c_points = contour.points
+    c_points = contour.points  # including off-curve
     p_index = c_points.index(point)
-
-    # XXX this can eventually be rewritten with modulo
-    if p_index == 0:
-        prev_BCP, next_BCP = c_points[-1], c_points[1]
-    elif p_index == len(contour.points) - 1:
-        prev_BCP, next_BCP = c_points[p_index - 1], c_points[0]
-    else:
-        prev_BCP, next_BCP = c_points[p_index - 1], c_points[p_index + 1]
+    prev_BCP = c_points[(p_index - 1) % len(c_points)]
+    next_BCP = c_points[(p_index + 1) % len(c_points)]
 
     if prev_BCP.type.lower() != 'offcurve':
         prev_BCP = None

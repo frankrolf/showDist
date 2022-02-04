@@ -16,10 +16,14 @@
 	<string>showDist.py</string>
 	<key>name</key>
 	<string>showDist</string>
+	<key>requiresVersionMajor</key>
+	<string>4</string>
+	<key>requiresVersionMinor</key>
+	<string>0</string>
 	<key>timeStamp</key>
-	<real>1632741320.465295</real>
+	<real>1643999382.219661</real>
 	<key>version</key>
-	<string>1.8.2</string>
+	<string>2.0.0</string>
 	<key>repository</key>
 	<string>frankrolf/showDist</string>
 	<key>extensionPath</key>

@@ -126,7 +126,7 @@ class ShowDistSubscriber(Subscriber):
     def build(self):
         glyphEditor = self.getGlyphEditor()
 
-        self.showDist = vanilla.TextBox((10, 12, 120, 22))
+        self.showDist = vanilla.TextBox((10, 12, 120, 42))
 
         glyphEditor.addGlyphEditorSubview(
             self.showDist, identifier="de.frgr.showDist")

@@ -15,6 +15,9 @@ Note: If a selection consists of more than two points, the extension will show t
 - Version 1.4: add interactive BCP-length information  
 - Version 1.7: fix angle direction, support rulers, properly remove observers
 - Version 1.8: observer updates
+- Version 2.0.0: Rewrite using Subscriber
+- Version 2.0.1: bugfix
+- Version 2.0.2: text is now following size and color of point coordinates
 
 <img src="img/showDist_drag.gif" alt="point dragging"/>
 

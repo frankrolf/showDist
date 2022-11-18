@@ -6,8 +6,10 @@ Released under MIT license.
 '''
 
 import math
+import AppKit
 import vanilla
 from mojo.subscriber import Subscriber, registerGlyphEditorSubscriber
+from mojo.UI import getDefault
 
 
 def get_BCP_base(bcp):
@@ -126,7 +128,18 @@ class ShowDistSubscriber(Subscriber):
     def build(self):
         glyphEditor = self.getGlyphEditor()
 
-        self.showDist = vanilla.TextBox((10, 12, 120, 42))
+        text_color = getDefault('glyphViewPointCoordinateColor')
+        text_color_float = tuple(float(item) for item in text_color)
+        text_size = getDefault('textFontSize')
+
+        nsfont = AppKit.NSFont.monospacedDigitSystemFontOfSize_weight_(
+            text_size, 0.0)
+        text_color = AppKit.NSColor.colorWithCalibratedRed_green_blue_alpha_(
+            *text_color_float)
+
+        self.showDist = vanilla.TextBox((10, 12, 140, 42))
+        self.showDist.getNSTextField().setFont_(nsfont)
+        self.showDist.getNSTextField().setTextColor_(text_color)
 
         glyphEditor.addGlyphEditorSubview(
             self.showDist, identifier="de.frgr.showDist")

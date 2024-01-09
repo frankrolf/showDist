@@ -66,7 +66,7 @@ def get_BCP_indicator(point_pair):
     '''
     Draw a tack in the direction of the BCP
     '''
-    point_a, point_b = point_pair.coord_list
+    point_a, point_b = point_pair.point_list
     if point_pair.angle < 45:
         if point_a.x - point_b.x < 0:
             bcp_indicator = u'⊢'
@@ -85,7 +85,7 @@ def make_BCP_info(point_pair):
     String to display in the info box
     '''
     bcp_indicator = get_BCP_indicator(point_pair)
-    point_a, point_b = point_pair.coord_list
+    point_a, point_b = point_pair.point_list
     if point_pair.angle in [0, 90]:
         info = u'{} {:.0f}'.format(
             bcp_indicator, point_pair.dist)
@@ -97,8 +97,8 @@ def make_BCP_info(point_pair):
 
 
 class SelectedPoints(object):
-    def __init__(self, coord_list):
-        self.coord_list = coord_list
+    def __init__(self, point_list):
+        self.point_list = point_list
         self.sel_box = self.sel_box()
         self.dist_x = self.sel_box[1][0] - self.sel_box[0][0]
         self.dist_y = self.sel_box[1][1] - self.sel_box[0][1]
@@ -107,9 +107,9 @@ class SelectedPoints(object):
         self.nice_angle = self.nice_angle_string()
 
     def sel_box(self):
-        if self.coord_list:
-            xList = [point.x for point in self.coord_list]
-            yList = [point.y for point in self.coord_list]
+        if self.point_list:
+            xList = [point.x for point in self.point_list]
+            yList = [point.y for point in self.point_list]
 
             return ((min(xList), min(yList)), (max(xList), max(yList)))
         return ((0, 0), (0, 0))
@@ -145,13 +145,23 @@ class ShowDistSubscriber(Subscriber):
             self.showDist, identifier="de.frgr.showDist")
 
     def glyphDidChangeSelection(self, info):
-        self.setTextForSelection(info["glyph"].selectedPoints)
+        self.setTextForSelection(
+            info["glyph"].selectedPoints,
+            info["glyph"].selectedAnchors
+        )
 
     def glyphEditorDidMouseDrag(self, info):
-        self.setTextForSelection(info["glyph"].selectedPoints)
+        self.setTextForSelection(
+            info["glyph"].selectedPoints,
+            info["glyph"].selectedAnchors
+        )
 
-    def setTextForSelection(self, selection):
-        if len(selection) == 1:
+    def setTextForSelection(self, pt_selection, anchor_selection):
+        selection = pt_selection + anchor_selection
+
+        # a single point is selected -- this only makes sense
+        # for curve points, not anchors
+        if len(pt_selection) == 1 and not anchor_selection:
             point = selection[0]
             info_list = []
 
@@ -186,8 +196,8 @@ class ShowDistSubscriber(Subscriber):
 
             text = '\n'.join(info_list)
 
+        # multiple points or anchors are selected
         else:
-            # multiple points are selected
             sp = SelectedPoints(selection)
 
             if [sp.angle, sp.dist_x, sp.dist_y] == [0, 0, 0]:

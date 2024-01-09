@@ -2,13 +2,13 @@
 
 <img src="img/showDist.png" alt="showDist screenshot"/>
 
-**Robofont extension to show quick information about point selection.**  
+**Robofont extension to show quick information about point- or anchor selection.**  
 This extension lives in a tiny space in the top left of the glyph window.  
-When two or more points are selected, the exension will show information about the horizontal and vertical distance between those points. If the points are not on a horizontal or vertical line, the extension will also show the diagonal distance and the angle between the selected points.  
+When two or more points are selected, the exension will show information about the horizontal and vertical distance between those points. If the points are not on a horizontal or vertical line, the extension will also show the diagonal distance and the angle between the selected points or anchors.  
 
 Selection of a single point will return distances and angles of attached BCPs, selection of a single BCP will return distance and angle from that BCP to its base point. This information is interactively updated as points are dragged.  
 
-Note: If a selection consists of more than two points, the extension will show the values for the bounding box of the current selection.  
+Note: If a selection consists of more than two points or anchors, the extension will show the values for the bounding box of the current selection.  
 
 - Version 1.2: add static BCP-length information 
 - Version 1.3: make selections in multiple windows possible
@@ -18,6 +18,7 @@ Note: If a selection consists of more than two points, the extension will show t
 - Version 2.0.0: Rewrite using Subscriber
 - Version 2.0.1: bugfix
 - Version 2.0.2: text is now following size and color of point coordinates
+- Version 2.0.3: also consider anchor selections
 
 <img src="img/showDist_drag.gif" alt="point dragging"/>
 

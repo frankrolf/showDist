@@ -9,7 +9,7 @@ import math
 import AppKit
 import vanilla
 from mojo.subscriber import Subscriber, registerGlyphEditorSubscriber
-from mojo.UI import getDefault
+from mojo.UI import getDefault, appearanceColorKey
 
 
 def get_BCP_base(bcp):
@@ -128,7 +128,8 @@ class ShowDistSubscriber(Subscriber):
     def build(self):
         glyphEditor = self.getGlyphEditor()
 
-        text_color = getDefault('glyphViewPointCoordinateColor')
+        current_color = appearanceColorKey('glyphViewPointCoordinateColor')
+        text_color = getDefault(current_color)
         text_color_float = tuple(float(item) for item in text_color)
         text_size = getDefault('textFontSize')
 

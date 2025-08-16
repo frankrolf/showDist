@@ -19,6 +19,7 @@ Note: If a selection consists of more than two points or anchors, the extension 
 - Version 2.0.1: bugfix
 - Version 2.0.2: text is now following size and color of point coordinates
 - Version 2.0.3: also consider anchor selections
+- Version 2.0.4: dark mode support
 
 <img src="img/showDist_drag.gif" alt="point dragging"/>
 

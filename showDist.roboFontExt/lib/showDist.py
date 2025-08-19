@@ -128,22 +128,35 @@ class ShowDistSubscriber(Subscriber):
     def build(self):
         glyphEditor = self.getGlyphEditor()
 
-        current_color = appearanceColorKey('glyphViewPointCoordinateColor')
-        text_color = getDefault(current_color)
-        text_color_float = tuple(float(item) for item in text_color)
         text_size = getDefault('textFontSize')
-
+        text_color = self.get_text_color()
         nsfont = AppKit.NSFont.monospacedDigitSystemFontOfSize_weight_(
             text_size, 0.0)
-        text_color = AppKit.NSColor.colorWithCalibratedRed_green_blue_alpha_(
-            *text_color_float)
 
         self.showDist = vanilla.TextBox((10, 12, 140, 42))
         self.showDist.getNSTextField().setFont_(nsfont)
         self.showDist.getNSTextField().setTextColor_(text_color)
 
         glyphEditor.addGlyphEditorSubview(
-            self.showDist, identifier="de.frgr.showDist")
+            self.showDist, identifier='de.frgr.showDist')
+
+    def get_text_color(self):
+        color_pref = getDefault(
+            appearanceColorKey('glyphViewPointCoordinateColor'))
+        # the preferences key returns a mix of integers and strings, which is
+        # why the float conversion happens here:
+        color_float = tuple(float(item) for item in color_pref)
+        text_color = AppKit.NSColor.colorWithCalibratedRed_green_blue_alpha_(
+            *color_float)
+        return text_color
+
+    def roboFontAppearanceChanged(self, info):
+        text_color = self.get_text_color()
+        self.showDist.getNSTextField().setTextColor_(text_color)
+
+    def roboFontDidChangePreferences(self, info):
+        text_color = self.get_text_color()
+        self.showDist.getNSTextField().setTextColor_(text_color)
 
     def glyphDidChangeSelection(self, info):
         self.setTextForSelection(
